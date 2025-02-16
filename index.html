@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг тегов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+        .column {
+            width: 30%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .card {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            transition: background 0.3s;
+            border: 2px solid black;
+            position: relative;
+            cursor: pointer;
+        }
+        .edit-icon {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .normal { background: white; }
+        .warning { background: red; color: white; }
+        h2 { text-align: center; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background: white;
+            padding: 20px;
+            border: 1px solid black;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .modal h3 {
+            margin-top: 0;
+        }
+        .modal input {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .modal button {
+            width: 100%;
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="column">
+            <h2>Замес теста</h2>
+            <div class="card normal" data-tag="Температура теста" data-unit="°C" data-min="20" data-max="30">Температура теста: 25°C (20-30°C) <span class="edit-icon">✎</span></div>
+            <div class="card warning" data-tag="Время замеса" data-unit="сек" data-min="180" data-max="300">Время замеса: 320 сек (180-300 сек) <span class="edit-icon">✎</span></div>
+            <div class="card normal" data-tag="Консистенция теста" data-unit="%" data-min="50" data-max="80">Консистенция теста: 60% (50-80%) <span class="edit-icon">✎</span></div>
+        </div>
+        <div class="column">
+            <h2>Ферментация</h2>
+            <div class="card warning" data-tag="Температура ферментации" data-unit="°C" data-min="30" data-max="40">Температура ферментации: 35°C (30-40°C) <span class="edit-icon">✎</span></div>
+            <div class="card normal" data-tag="Влажность теста" data-unit="%" data-min="55" data-max="80">Влажность теста: 70% (55-80%) <span class="edit-icon">✎</span></div>
+            <div class="card normal" data-tag="Время ферментации" data-unit="мин" data-min="20" data-max="40">Время ферментации: 30 мин (20-40 мин) <span class="edit-icon">✎</span></div>
+        </div>
+        <div class="column">
+            <h2>Выпечка</h2>
+            <div class="card normal" data-tag="Температура печи" data-unit="°C" data-min="200" data-max="250">Температура печи: 220°C (200-250°C) <span class="edit-icon">✎</span></div>
+            <div class="card warning" data-tag="Степень пропекания" data-unit="%" data-min="90" data-max="100">Степень пропекания: 85% (90-100%) <span class="edit-icon">✎</span></div>
+            <div class="card normal" data-tag="Время выпекания" data-unit="мин" data-min="10" data-max="30">Время выпекания: 25 мин (10-30 мин) <span class="edit-icon">✎</span></div>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <h3 id="modalTitle">Редактирование правила</h3>
+        <label for="tagName">Название тега:</label>
+        <input type="text" id="tagName" readonly>
+        <label for="minValue">Мин. значение:</label>
+        <input type="number" id="minValue">
+        <label for="maxValue">Макс. значение:</label>
+        <input type="number" id="maxValue">
+        <button onclick="saveRule()">Сохранить</button>
+    </div>
+
+    <script>
+        let currentCard = null;
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function () {
+                openModal(this);
+            });
+        });
+        function openModal(cardElement) {
+            currentCard = cardElement;
+            document.getElementById("modalTitle").innerText = "Редактирование: " + cardElement.dataset.tag;
+            document.getElementById("tagName").value = cardElement.dataset.tag;
+            document.getElementById("minValue").value = cardElement.dataset.min;
+            document.getElementById("maxValue").value = cardElement.dataset.max;
+            document.getElementById("editModal").style.display = "block";
+        }
+        function saveRule() {
+            let minValue = parseFloat(document.getElementById("minValue").value);
+            let maxValue = parseFloat(document.getElementById("maxValue").value);
+            if (currentCard) {
+                currentCard.dataset.min = minValue;
+                currentCard.dataset.max = maxValue;
+                let unit = currentCard.dataset.unit;
+                let valueText = currentCard.textContent.split(': ')[1].split(' ')[0];
+                currentCard.innerHTML = `${currentCard.dataset.tag}: ${valueText} ${unit} (${minValue}-${maxValue} ${unit}) <span class="edit-icon">✎</span>`;
+                currentCard.querySelector(".edit-icon").addEventListener('click', function () {
+                    openModal(currentCard);
+                });
+            }
+            document.getElementById("editModal").style.display = "none";
+        }
+    </script>
+</body>
+</html>
