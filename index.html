@@ -28,7 +28,7 @@
             margin: 10px 0;
             border-radius: 5px;
             text-align: center;
-            transition: background 0.3s;
+            transition: background 0.5s;
             border: 2px solid black;
             position: relative;
             cursor: pointer;
@@ -42,6 +42,7 @@
         }
         .normal { background: white; }
         .warning { background: red; color: white; }
+        .alert { background: yellow; }
         h2 { text-align: center; }
         
         .modal {
@@ -125,11 +126,13 @@
                 currentCard.dataset.min = minValue;
                 currentCard.dataset.max = maxValue;
                 let unit = currentCard.dataset.unit;
-                let valueText = currentCard.textContent.split(': ')[1].split(' ')[0];
-                currentCard.innerHTML = `${currentCard.dataset.tag}: ${valueText} ${unit} (${minValue}-${maxValue} ${unit}) <span class="edit-icon">✎</span>`;
-                currentCard.querySelector(".edit-icon").addEventListener('click', function () {
-                    openModal(currentCard);
-                });
+                let valueText = parseFloat(currentCard.textContent.split(': ')[1].split(' ')[0]);
+                currentCard.classList.add("alert");
+                setTimeout(() => {
+                    currentCard.classList.remove("alert");
+                    currentCard.classList.toggle("warning", valueText < minValue || valueText > maxValue);
+                    currentCard.classList.toggle("normal", valueText >= minValue && valueText <= maxValue);
+                }, 1000);
             }
             document.getElementById("editModal").style.display = "none";
         }
